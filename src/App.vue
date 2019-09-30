@@ -1,17 +1,35 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div id="kline_container"></div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+import Kline from './test/entry'
 
 export default {
   name: 'app',
-  components: {
-    HelloWorld
+  mounted() {
+    var kline = new Kline({
+        element: "#kline_container",
+        width: 1200,
+        height: 650,
+        theme: 'dark', // light/dark
+        language: 'zh-cn', // zh-cn/en-us/zh-tw
+        ranges: ["1w", "1d", "1h", "30m", "15m", "5m", "1m", "line"],
+        symbol: "BTC",
+        symbolName: "BTC/USD",
+        type: "123", // poll/socket
+        url: "http://192.168.1.206:9090/examples/mock.json",
+        limit: 1000,
+        intervalTime: 5000,
+        debug: true,
+        onResize: function(width, height) {
+            console.log("chart resized: " + width + " " + height);
+        }
+    });
+     kline.draw();
   }
 }
 </script>
@@ -25,4 +43,9 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
+#kline_container {
+  margin: auto;
+}
+
 </style>

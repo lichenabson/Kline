@@ -1,6 +1,7 @@
 export class CName {
 
     constructor(name) {
+        if(!name) name = "";
         this._names = [];
         this._comps = [];
         if (name instanceof CName) {

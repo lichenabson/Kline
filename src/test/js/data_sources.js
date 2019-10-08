@@ -23,10 +23,6 @@ export class DataSource extends NamedObject {
         this._updateMode = mode;
     }
 
-    getCacheSize() {
-        return 0;
-    }
-
     getDataCount() {
         return 0;
     }
@@ -46,10 +42,6 @@ export class MainDataSource extends DataSource {
         this._dataItems = [];
         this._decimalDigits = 0;
         this.toolManager = new CToolManager(name);
-    }
-
-    getCacheSize() {
-        return this._dataItems.length;
     }
 
     getDataCount() {

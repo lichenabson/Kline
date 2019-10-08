@@ -19,34 +19,11 @@ export class Control {
         if (showLoading === true) {
             $("#chart_loading").addClass("activated");
         }
-        if (Kline.instance.type === "stomp" && Kline.instance.stompClient) {
-            Control.requestOverStomp();
-        } else {
-            Control.requestOverHttp();
-        }
+        Control.requestOverHttp();
     }
 
     static parseRequestParam(str) {
         return JSON.parse('{"' + decodeURI(str.replace(/&/g, "\",\"").replace(/=/g, "\":\"")) + '"}')
-    }
-
-    static requestOverStomp() {
-        if (!Kline.instance.socketConnected) {
-            if (Kline.instance.debug) {
-                console.log("DEBUG: socket is not coonnected")
-            }
-            return;
-        }
-        if (Kline.instance.stompClient && Kline.instance.stompClient.ws.readyState === 1) {
-            Kline.instance.stompClient.send(Kline.instance.sendPath, {}, JSON.stringify(Control.parseRequestParam(Kline.instance.requestParam)));
-            return;
-        }
-        if (Kline.instance.debug) {
-            console.log("DEBUG: stomp client is not ready yet ...");
-        }
-        Kline.instance.timer = setTimeout(function () {
-            Control.requestData(true);
-        }, 1000);
     }
 
     static requestOverHttp() {
@@ -77,9 +54,7 @@ export class Control {
                     if (xhr.status === 200 && xhr.readyState === 4) {
                         return;
                     }
-                    Kline.instance.timer = setTimeout(function () {
-                        Control.requestData(true);
-                    }, Kline.instance.intervalTime);
+                    Control.requestData(true);
                 },
                 complete: function () {
                     Kline.instance.G_HTTP_REQUEST = null;
@@ -92,36 +67,12 @@ export class Control {
         if (Kline.instance.debug) {
             console.log(res);
         }
-        if (!res || !res.success) {
-            if (Kline.instance.type === 'poll') {
-                Kline.instance.timer = setTimeout(function () {
-                    Control.requestData(true);
-                }, Kline.instance.intervalTime);
-            }
-            return;
-        }
         $("#chart_loading").removeClass("activated");
 
         let chart = ChartManager.instance.getChart();
-        chart.setTitle();
         Kline.instance.data = eval(res.data);
 
         let updateDataRes = Kline.instance.chartMgr.updateData("frame0.k0", Kline.instance.data.lines);
-        Kline.instance.requestParam = Control.setHttpRequestParam(Kline.instance.symbol, Kline.instance.range, null, Kline.instance.chartMgr.getDataSource("frame0.k0").getLastDate());
-
-        let intervalTime = Kline.instance.intervalTime < Kline.instance.range ? Kline.instance.intervalTime : Kline.instance.range;
-
-        if (!updateDataRes) {
-            if (Kline.instance.type === 'poll') {
-                Kline.instance.timer = setTimeout(Control.requestData, intervalTime);
-            }
-            return;
-        }
-
-        if (Kline.instance.type === 'poll') {
-            Kline.instance.timer = setTimeout(Control.TwoSecondThread, intervalTime);
-        }
-
         ChartManager.instance.redraw('All', false);
     }
 
@@ -200,8 +151,8 @@ export class Control {
     }
 
     static refreshTemplate() {
-        Kline.instance.chartMgr = DefaultTemplate.loadTemplate("frame0.k0", "");
-        ChartManager.instance.redraw('All', true);
+        Kline.instance.chartMgr = DefaultTemplate.loadTemplate();
+        // ChartManager.instance.redraw('All', true);
     }
 
     static chartSwitchLanguage(lang) {
@@ -221,7 +172,6 @@ export class Control {
         });
         $("#chart_language_setting_div li a[name='" + lang + "']").addClass("selected");
         ChartManager.instance.setLanguage(lang);
-        ChartManager.instance.getChart().setTitle();
         let tmp = ChartSettings.get();
         tmp.language = lang;
         ChartSettings.save();
@@ -356,7 +306,7 @@ export class Control {
             rowTheme.style.display = "none";
         }
 
-        ChartManager.instance.redraw('All', true);
+        // ChartManager.instance.redraw('All', true);
         Kline.instance.onResize(width, height);
     }
 
@@ -457,7 +407,7 @@ export class Control {
                 if ($(this).attr('name') === value)
                     $(this).addClass('selected');
             });
-            $('#chart_tabbar')[0].style.display = 'block';
+            $('#chart_tabbar')[0].style.display = 'none';
         } else if (name === 'off') {
             $('#chart_show_indicator').removeClass('selected');
             ChartManager.instance.getChart().setIndicator(2, 'NONE');

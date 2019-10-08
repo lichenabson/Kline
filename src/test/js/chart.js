@@ -59,27 +59,9 @@ export class Chart {
     constructor() {
         this._data = null;
         this._charStyle = "CandleStick";
-        this._depthData = {
-            array: null,
-            asks_count: 0,
-            bids_count: 0,
-            asks_si: 0,
-            asks_ei: 0,
-            bids_si: 0,
-            bids_ei: 0
-        };
         this.strIsLine = false;
         this._range = Kline.instance.range;
         this._symbol = Kline.instance.symbol;
-    }
-
-    setTitle() {
-        let lang = ChartManager.instance.getLanguage();
-        let title = Kline.instance.symbolName;
-        title += ' ';
-        title += this.strIsLine ? Chart.strPeriod[lang]['line'] : Chart.strPeriod[lang][this._range];
-        title += (this._contract_unit + '/' + this._money_type).toUpperCase();
-        ChartManager.instance.setTitle('frame0.k0', title);
     }
 
 
@@ -89,33 +71,16 @@ export class Chart {
     }
 
     updateDataAndDisplay() {
-        Kline.instance.symbol = this._symbol;
-        Kline.instance.range = this._range;
+        // Kline.instance.symbol = this._symbol;
+        // Kline.instance.range = this._range;
         ChartManager.instance.setCurrentDataSource('frame0.k0', this._symbol + '.' + this._range);
         ChartManager.instance.setNormalMode();
-        let f = Kline.instance.chartMgr.getDataSource("frame0.k0").getLastDate();
+        // let f = Kline.instance.chartMgr.getDataSource("frame0.k0").getLastDate();
 
-        $('.symbol-title>a').text(Kline.instance.symbolName);
+        // $('.symbol-title>a').text(Kline.instance.symbolName);
 
-        if (f === -1) {
-            Kline.instance.requestParam = Control.setHttpRequestParam(Kline.instance.symbol, Kline.instance.range, Kline.instance.limit, null);
-            Control.requestData(true);
-        } else {
-            Kline.instance.requestParam = Control.setHttpRequestParam(Kline.instance.symbol, Kline.instance.range, null, f.toString());
-            Control.requestData();
-        }
-        ChartManager.instance.redraw('All', false);
-    }
-
-
-    setCurrentContractUnit(contractUnit) {
-        this._contract_unit = contractUnit;
-        this.updateDataAndDisplay();
-    }
-
-    setCurrentMoneyType(moneyType) {
-        this._money_type = moneyType;
-        this.updateDataAndDisplay();
+        Control.requestData();
+        // ChartManager.instance.redraw('All', false);
     }
 
     setCurrentPeriod(period) {
@@ -131,51 +96,6 @@ export class Chart {
     updateDataSource(data) {
         this._data = data;
         ChartManager.instance.updateData("frame0.k0", this._data);
-    }
-
-    updateDepth(array) {
-        if (array === null) {
-            this._depthData.array = [];
-            ChartManager.instance.redraw('All', false);
-            return;
-        }
-        if (!array.asks || !array.bids || array.asks === '' || array.bids === '')
-            return;
-        let _data = this._depthData;
-        _data.array = [];
-        for (let i = 0; i < array.asks.length; i++) {
-            let data = {};
-            data.rate = array.asks[i][0];
-            data.amount = array.asks[i][1];
-            _data.array.push(data);
-        }
-        for (let i = 0; i < array.bids.length; i++) {
-            let data = {};
-            data.rate = array.bids[i][0];
-            data.amount = array.bids[i][1];
-            _data.array.push(data);
-        }
-        _data.asks_count = array.asks.length;
-        _data.bids_count = array.bids.length;
-        _data.asks_si = _data.asks_count - 1;
-        _data.asks_ei = 0;
-        _data.bids_si = _data.asks_count - 1;
-        _data.bids_ei = _data.asks_count + _data.bids_count - 2;
-        for (let i = _data.asks_si; i >= _data.asks_ei; i--) {
-            if (i === _data.asks_si && _data.array[i] !== undefined) {
-                _data.array[i].amounts = _data.array[i].amount;
-            } else if(_data.array[i + 1] !== undefined) {
-                _data.array[i].amounts = _data.array[i + 1].amounts + _data.array[i].amount;
-            }
-        }
-        for (let i = _data.bids_si; i <= _data.bids_ei; i++) {
-            if (i === _data.bids_si && _data.array[i] !== undefined) {
-                _data.array[i].amounts = _data.array[i].amount;
-            } else if (_data.array[i - 1] !== undefined) {
-                _data.array[i].amounts = _data.array[i - 1].amounts + _data.array[i].amount;
-            }
-        }
-        ChartManager.instance.redraw('All', false);
     }
 
     setMainIndicator(indicName) {

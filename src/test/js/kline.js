@@ -217,16 +217,6 @@ export default class Kline {
 
     registerMouseEvent() {
         $(document).ready(function () {
-            function __resize() {
-                if (navigator.userAgent.indexOf('Firefox') >= 0) {
-                    setTimeout(function () {
-                        Control.onSize(this.width, this.height)
-                    }, 200);
-                } else {
-                    Control.onSize(this.width, this.height)
-                }
-            }
-
             $('#chart_overlayCanvas').bind("contextmenu", function (e) {
                 e.cancelBubble = true;
                 e.returnValue = false;

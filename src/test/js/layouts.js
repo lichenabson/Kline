@@ -256,6 +256,7 @@ export class DockableLayout extends areas.ChartAreaGroup {
 
     constructor(name) {
         super(name);
+        this.setGridColor(themes.Theme.Color.Grid1);
     }
 
     measure(context, width, height) {

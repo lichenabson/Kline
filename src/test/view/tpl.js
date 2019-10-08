@@ -3,7 +3,7 @@ const string = `
 <div class="chart_container dark">
 <div id="chart_dom_elem_cache"></div>
 <!-- ToolBar -->
-<div id="chart_toolbar">
+<div id="chart_toolbar" style="display: none">
     <div class="chart_toolbar_minisep"></div>
     <!-- Periods -->
     <div class="chart_dropdown" id="chart_toolbar_periods_vert">
@@ -336,7 +336,7 @@ const string = `
     <canvas class="chart_canvas" id="chart_mainCanvas" style="cursor: default;"></canvas>
     <canvas class="chart_canvas" id="chart_overlayCanvas" style="cursor: default;"></canvas>
 </div>
-<div id="chart_tabbar">
+<div id="chart_tabbar" style="display:none">
     <ul>
         <li><a name="MACD" class="">MACD</a></li>
 

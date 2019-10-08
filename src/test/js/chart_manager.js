@@ -49,7 +49,6 @@ export class ChartManager {
         this._ranges = {};
         this._plotters = {};
         this._themes = {};
-        this._titles = {};
         this._frameMousePos = {};
         this._dsChartStyle = {};
         this._dragStarted = false;
@@ -73,6 +72,7 @@ export class ChartManager {
         return ChartManager.instance;
     }
 
+    // 重绘视图
     redraw(layer, refresh) {
         if (layer === undefined || refresh) {
             layer = "All";
@@ -118,15 +118,6 @@ export class ChartManager {
 
     getChart(nouseParam) {
         return this._chart["defaultFrame"];
-    }
-
-    init() {
-        delete this._ranges['frame0.k0.indic1'];
-        delete this._ranges['frame0.k0.indic1Range'];
-        delete this._areas['frame0.k0.indic1'];
-        delete this._areas['frame0.k0.indic1Range'];
-        templates.DefaultTemplate.loadTemplate("frame0.k0", "");
-        this.redraw('All', true);
     }
 
     setCurrentDrawingTool(paramTool) {
@@ -320,23 +311,12 @@ export class ChartManager {
         }
     }
 
-    getTitle(dsName) {
-        return this._titles[dsName];
-    }
-
-    setTitle(dsName, title) {
-        this._titles[dsName] = title;
-    }
-
     setCurrentDataSource(dsName, dsAlias) {
-        let cached = this.getCachedDataSource(dsAlias);
-        if (cached !== undefined && cached !== null) {
-            this.setDataSource(dsName, cached, true);
-        } else {
-            cached = new data_sources.MainDataSource(dsAlias);
-            this.setDataSource(dsName, cached, true);
-            this.setCachedDataSource(dsAlias, cached);
+        let ds = this.getDataSource(dsAlias);
+        if (!ds) {
+            ds = new data_sources.MainDataSource(dsAlias);
         }
+        this.setDataSource(dsName, ds, true);
     }
 
     getDataSource(name) {
@@ -348,14 +328,6 @@ export class ChartManager {
         if (forceRefresh) {
             this.updateData(name, null);
         }
-    }
-
-    getCachedDataSource(name) {
-        return this._dataSourceCache[name];
-    }
-
-    setCachedDataSource(name, ds) {
-        this._dataSourceCache[name] = ds;
     }
 
     getDataProvider(name) {
@@ -850,39 +822,6 @@ export class ChartManager {
             pDPTool.delToolObject();
         }
         this.setNormalMode();
-    }
-
-    unloadTemplate(frameName) {
-        let frame = this.getFrame(frameName);
-        if (frame === undefined)
-            return;
-        for (let n in this._dataSources) {
-            if (n.match(frameName + "."))
-                delete this._dataSources[n];
-        }
-        for (let n in this._dataProviders) {
-            if (this._dataProviders[n].getFrameName() === frameName)
-                delete this._dataProviders[n];
-        }
-        delete this._frames[frameName];
-        for (let n in this._areas) {
-            if (this._areas[n].getFrameName() === frameName)
-                delete this._areas[n];
-        }
-        for (let n in this._timelines) {
-            if (this._timelines[n].getFrameName() === frameName)
-                delete this._timelines[n];
-        }
-        for (let n in this._ranges) {
-            if (this._ranges[n].getFrameName() === frameName)
-                delete this._ranges[n];
-        }
-        for (let n in this._plotters) {
-            if (this._plotters[n].getFrameName() === frameName)
-                delete this._plotters[n];
-        }
-        delete this._themes[frameName];
-        delete this._frameMousePos[frameName];
     }
 
     createIndicatorAndRange(areaName, indicName, notLoadSettings) {

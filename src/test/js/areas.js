@@ -180,10 +180,6 @@ export class ChartArea extends NamedObject {
         return this._selected;
     }
 
-    getSelectedArea() {
-        return this._selected ? this : null;
-    }
-
     select(area) {
         this._selected = (this === area);
         return this._selected ? this : null;
@@ -460,13 +456,6 @@ export class ChartAreaGroup extends ChartArea {
                 this._highlightedArea = e;
                 return this;
             }
-        }
-        return null;
-    }
-
-    getSelectedArea() {
-        if (this._selectedArea !== null) {
-            return this._selectedArea.getSelectedArea();
         }
         return null;
     }

@@ -1,80 +1,63 @@
 import {ChartManager} from './chart_manager'
 import {ChartSettings} from './chart_settings'
-import * as data_sources from './data_sources'
 import * as data_providers from './data_providers'
 import * as areas from './areas'
 import * as plotters from './plotters'
 import {Timeline} from './timeline'
 import {CName} from './cname'
 import * as layouts from './layouts'
-import * as themes from './themes'
 import * as ranges from './ranges'
 
 export class Template {
 
-    static displayVolume = true;
-
-    static createCandlestickDataSource(dsAlias) {
-        return new data_sources.MainDataSource(dsAlias);
-    }
-
-    static createDataSource(dsName, dsAlias, createFunc) {
-        let mgr = ChartManager.instance;
-        if (mgr.getCachedDataSource(dsAlias) === null)
-            mgr.setCachedDataSource(dsAlias, createFunc(dsAlias));
-        mgr.setCurrentDataSource(dsName, dsAlias);
-        mgr.updateData(dsName, null);
-    }
+    static displayVolume = false;
 
     static createTableComps(dsName) {
-        this.createMainChartComps(dsName);
+        this.createMainChartComps('frame0.k0');
         if (this.displayVolume) {
-            this.createIndicatorChartComps(dsName, "VOLUME");
+            this.createIndicatorChartComps('frame0.k0', "VOLUME");
         }
-        this.createTimelineComps(dsName);
+        this.createTimelineComps('frame0.k0');
     }
 
-    static createMainChartComps(dsName) {
+    // 创建主视图表及其组件
+    static createMainChartComps() {
         let mgr = ChartManager.instance;
-        let tableLayout = mgr.getArea(dsName + ".charts");
-        let areaName = dsName + ".main";
-        let rangeAreaName = areaName + "Range";
-        let area = new areas.MainArea(areaName);
-        mgr.setArea(areaName, area);
+        let tableLayout = mgr.getArea("frame0.k0.charts");
+        let area = new areas.MainArea("frame0.k0.main");
+        mgr.setArea("frame0.k0.main", area);
         tableLayout.addArea(area);
-        let rangeArea = new areas.MainRangeArea(rangeAreaName);
-        mgr.setArea(rangeAreaName, rangeArea);
+        let rangeArea = new areas.MainRangeArea("frame0.k0.mainRange");
+        mgr.setArea("frame0.k0.mainRange", rangeArea);
         tableLayout.addArea(rangeArea);
-        let dp = new data_providers.MainDataProvider(areaName + ".main");
+        let dp = new data_providers.MainDataProvider("frame0.k0.main.main");
         mgr.setDataProvider(dp.getName(), dp);
-        mgr.setMainIndicator(dsName, "MA");
-        let range = new ranges.MainRange(areaName);
+        mgr.setMainIndicator('frame0.k0', "MA");
+        let range = new ranges.MainRange("frame0.k0.main");
         mgr.setRange(range.getName(), range);
         range.setPaddingTop(28);
         range.setPaddingBottom(12);
-        let plotter = new plotters.MainAreaBackgroundPlotter(areaName + ".background");
+        let plotter = new plotters.MainAreaBackgroundPlotter("frame0.k0.main.background");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.CGridPlotter(areaName + ".grid");
+        plotter = new plotters.CGridPlotter("frame0.k0.main.grid");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.CandlestickPlotter(areaName + ".main");
+        plotter = new plotters.CandlestickPlotter("frame0.k0.main.main");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.MinMaxPlotter(areaName + ".decoration");
+        plotter = new plotters.MinMaxPlotter("frame0.k0.main.decoration");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.MainInfoPlotter(areaName + ".info");
+        plotter = new plotters.MainInfoPlotter("frame0.k0.main.info");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.SelectionPlotter(areaName + ".selection");
+        plotter = new plotters.SelectionPlotter("frame0.k0.main.selection");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.CDynamicLinePlotter(areaName + ".tool");
+        plotter = new plotters.CDynamicLinePlotter("frame0.k0.main.tool");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.RangeAreaBackgroundPlotter(areaName + "Range.background");
+        plotter = new plotters.RangeAreaBackgroundPlotter("frame0.k0.mainRange.background");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.COrderGraphPlotter(areaName + "Range.grid");
+        plotter = new plotters.RangePlotter("frame0.k0.mainRange.main");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.RangePlotter(areaName + "Range.main");
+        plotter = new plotters.RangeSelectionPlotter("frame0.k0.mainRange.selection");
         mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.RangeSelectionPlotter(areaName + "Range.selection");
-        mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.LastClosePlotter(areaName + "Range.decoration");
+        plotter = new plotters.LastClosePlotter("frame0.k0.mainRange.decoration");
         mgr.setPlotter(plotter.getName(), plotter);
     }
 
@@ -138,48 +121,30 @@ export class Template {
         mgr.setPlotter(plotter.getName(), plotter);
     }
 
-    static createLiveOrderComps(dsName) {
-        let mgr = ChartManager.instance;
-        let plotter;
-        plotter = new plotters.BackgroundPlotter(dsName + ".main.background");
-        mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.CLiveOrderPlotter(dsName + ".main.main");
-        mgr.setPlotter(plotter.getName(), plotter);
-    }
-
-    static createLiveTradeComps(dsName) {
-        let mgr = ChartManager.instance;
-        let plotter;
-        plotter = new plotters.BackgroundPlotter(dsName + ".main.background");
-        mgr.setPlotter(plotter.getName(), plotter);
-        plotter = new plotters.CLiveTradePlotter(dsName + ".main.main");
-        mgr.setPlotter(plotter.getName(), plotter);
-    }
-
 }
 
 export class DefaultTemplate extends Template {
 
-    static loadTemplate(dsName, dsAlias) {
+    // 载入模板
+    static loadTemplate() {
         let mgr = ChartManager.instance;
-        let settings = ChartSettings.get();
-        let frameName = (new CName(dsName)).getCompAt(0);
-        mgr.unloadTemplate(frameName);
-        this.createDataSource(dsName, dsAlias, this.createCandlestickDataSource);
+        // 获取frame Name / frame0 
+        let frameName = (new CName('frame0.k0')).getCompAt(0);
         let frame = new layouts.DockableLayout(frameName);
-        mgr.setFrame(frame.getName(), frame);
-        mgr.setArea(frame.getName(), frame);
-        frame.setGridColor(themes.Theme.Color.Grid1);
-        let area = new areas.TimelineArea(dsName + ".timeline");
-        mgr.setArea(area.getName(), area);
-        frame.addArea(area);
-        area.setDockStyle(areas.ChartArea.DockStyle.Bottom);
-        area.Measuring.addHandler(area, TemplateMeasuringHandler.onMeasuring);
-        let tableLayout = new layouts.TableLayout(dsName + ".charts");
+        mgr.setFrame(frameName, frame);
+        mgr.setArea(frameName, frame);
+        let timelineArea = new areas.TimelineArea("frame0.k0.timeline");
+        mgr.setArea(timelineArea.getName(), timelineArea);
+        frame.addArea(timelineArea);
+        timelineArea.setDockStyle(areas.ChartArea.DockStyle.Bottom);
+        timelineArea.Measuring.addHandler(timelineArea, TemplateMeasuringHandler.onMeasuring);
+        let tableLayout = new layouts.TableLayout("frame0.k0.charts");
         mgr.setArea(tableLayout.getName(), tableLayout);
         tableLayout.setDockStyle(areas.ChartArea.DockStyle.Fill);
         frame.addArea(tableLayout);
-        this.createTableComps(dsName);
+        this.createTableComps('frame0.k0');
+        // 返回k线的设置选项 设置主题颜色
+        let settings = ChartSettings.get();
         mgr.setThemeName(frameName, settings.theme);
         return mgr;
     }

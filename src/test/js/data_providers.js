@@ -124,7 +124,7 @@ export class IndicatorDataProvider extends DataProvider {
     refresh() {
         let mgr = ChartManager.instance;
         let ds = mgr.getDataSource(this.getDataSourceName());
-        if (ds.getDataCount() < 1) {
+        if (!ds || ds.getDataCount() < 1) {
             return;
         }
         let indic = this._indicator;
